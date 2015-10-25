@@ -25,6 +25,7 @@ use std::io::{self, Write, Read, Cursor};
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, mpsc, RwLock};
 use url::Url;
+use self::msg::constellation_msg::{PipelineId};
 
 const DEFAULT_USER_AGENT: &'static str = "Test-agent";
 
@@ -336,7 +337,7 @@ fn test_check_default_headers_loaded_in_every_request() {
                                                     body: <[_]>::to_vec(&[])
                                                 }, DEFAULT_USER_AGENT.to_string());
 }
-
+//Modify Test for Pipeline_id
 #[test]
 fn test_load_when_request_is_not_get_or_head_and_there_is_no_body_content_length_should_be_set_to_0() {
     let url = Url::parse("http://mozilla.com").unwrap();
@@ -344,15 +345,15 @@ fn test_load_when_request_is_not_get_or_head_and_there_is_no_body_content_length
     let hsts_list = Arc::new(RwLock::new(HSTSList::new()));
     let cookie_jar = Arc::new(RwLock::new(CookieStorage::new()));
 
-    let mut load_data = LoadData::new(url.clone(), None);
-    load_data.data = None;
+    let mut load_data = LoadData::new(url.clone(), pipeline_id);
+    load_data.data = pipeline_id;
     load_data.method = Method::Post;
 
     let mut content_length = Headers::new();
     content_length.set(ContentLength(0));
 
     let _ = load::<AssertRequestMustIncludeHeaders>(
-        load_data.clone(), hsts_list, cookie_jar, None,
+        load_data.clone(), hsts_list, cookie_jar, pipeline_id,
         &AssertMustIncludeHeadersRequestFactory {
             expected_headers: content_length,
             body: <[_]>::to_vec(&[])
